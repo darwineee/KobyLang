@@ -1,5 +1,6 @@
 #include "interpreter/interpreter.hpp"
 
+#include "const/prelude_func.hpp"
 #include "types/error_code.hpp"
 #include "utils/errorx.hpp"
 #include "utils/templ.hpp"
@@ -14,17 +15,22 @@ void Interpreter::panic(const int err_code, const std::string& message, const in
 }
 
 void Interpreter::prelude() const {
-    NativeFunc now{0, [](Interpreter&, const std::vector<Value>&) -> ExecSig {
+    NativeFunc now_func{0, [](Interpreter&, const std::vector<Value>&) -> ExecSig {
                        using namespace std::chrono;
-                       const auto now_sc = duration_cast<seconds>(system_clock::now().time_since_epoch()).count();
-                       return ExecSig{.value = Value(static_cast<double>(now_sc))};
+                       const auto now = duration_cast<seconds>(system_clock::now().time_since_epoch()).count();
+                       return ExecSig{.value = Value(static_cast<double>(now))};
                    }};
-    NativeFunc print{1, [](Interpreter&, const std::vector<Value>& args) -> ExecSig {
+    NativeFunc put_func{1, [](Interpreter&, const std::vector<Value>& args) -> ExecSig {
                          std::cout << utils::to_string(args[0]) << std::endl;
                          return ExecSig{};
                      }};
-    global_env->define("now", Value(std::make_shared<NativeFunc>(now)));
-    global_env->define("print", Value(std::make_shared<NativeFunc>(print)));
+    global_env->define(prelude::NOW, Value(std::make_shared<NativeFunc>(now_func)));
+    global_env->define(prelude::PUT, Value(std::make_shared<NativeFunc>(put_func)));
+}
+
+void Interpreter::exclude_native_func(const std::vector<std::string>& list) const {
+    for(auto const& name : list)
+        global_env->remove(name);
 }
 
 bool Interpreter::is_truthy(const Value& value) {
@@ -54,9 +60,11 @@ void Interpreter::ensure_num_operands(const Token& op, const std::vector<Value>&
     }
 }
 
-void Interpreter::interpret(const std::vector<Stmt>& statements) {
+ExecSig Interpreter::interpret(const std::vector<Stmt>& statements) {
+    auto res = ExecSig{};
     for(const auto& stmt : statements)
-        run(stmt);
+        res = run(stmt);
+    return res;
 }
 
 ExecSig Interpreter::run(const Stmt& stmt) {
@@ -76,8 +84,7 @@ ExecSig Interpreter::run(const Stmt& stmt) {
 }
 
 ExecSig Interpreter::runExprStmt(const ExprStmt& stmt) {
-    evaluate(stmt.expr);
-    return ExecSig{};
+    return ExecSig{.value = evaluate(stmt.expr)};
 }
 
 ExecSig Interpreter::runIfStmt(const IfStmt& stmt) {
@@ -95,7 +102,7 @@ ExecSig Interpreter::runVarDeclStmt(const VarDeclStmt& stmt) {
         value = evaluate(stmt.initializer);
 
     env->define(stmt.name, value);
-    return ExecSig{};
+    return ExecSig{.value = value};
 }
 
 ExecSig Interpreter::runFuncDeclStmt(const FuncDeclStmt& stmt) {
@@ -129,6 +136,7 @@ ExecSig Interpreter::executeBlock(
 }
 
 ExecSig Interpreter::runWhileStmt(const WhileStmt& stmt) {
+    auto result = ExecSig{};
     while(is_truthy(evaluate(stmt.condition))) {
         auto res = run(*stmt.body);
         if(res.control == ExecControl::BREAK) {
@@ -140,8 +148,9 @@ ExecSig Interpreter::runWhileStmt(const WhileStmt& stmt) {
         if(res.control == ExecControl::RETURN) {
             return res;
         }
+        result = res;
     }
-    return ExecSig{};
+    return result;
 }
 
 ExecSig Interpreter::runBreakStmt() {

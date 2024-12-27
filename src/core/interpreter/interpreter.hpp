@@ -37,6 +37,7 @@ public:
     void  define(const std::string& name, const Value& value = nullptr);
     Value get(std::string name);
     void  assign(std::string name, const Value& value);
+    void  remove(const std::string& name);
 };
 
 class Interpreter;
@@ -101,7 +102,8 @@ public:
     ExecSig
     executeBlock(const std::vector<std::shared_ptr<Stmt>>& statements, const std::shared_ptr<Environment>& environment);
 
-    void interpret(const std::vector<Stmt>& statements);
+    ExecSig interpret(const std::vector<Stmt>& statements);
+    void exclude_native_func(const std::vector<std::string>& list) const;
 };
 
 struct Callable {

@@ -27,3 +27,9 @@ void Environment::assign(std::string name, const Value& value) {
     }
     throw Error(err::UNDEFINED_VAR, std::format("Undefined variable '{}'.", name));
 }
+
+void Environment::remove(const std::string& name) {
+    if(variables.contains(name)) {
+        variables.erase(name);
+    }
+}

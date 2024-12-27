@@ -101,12 +101,13 @@ std::string to_string(const Value& value) {
         overloaded{
             [](std::nullptr_t) { return keyword::Nil; },
             [](const double num) {
-                char buffer[32];
-                int  len = num == std::floor(num) ? snprintf(buffer, sizeof(buffer), "%.0f", num)
-                                                  : snprintf(buffer, sizeof(buffer), "%.6f", num);
-                while(len > 0 && buffer[len - 1] == '0')
-                    len--;
-                return std::string(buffer, len);
+                std::ostringstream ss;
+                if(std::floor(num) == num) {
+                    ss << std::fixed << std::setprecision(0) << num;
+                } else {
+                    ss << std::fixed << num;
+                }
+                return ss.str();
             },
             [](const std::string& str) { return str; },
             [](const bool boolean) { return boolean ? keyword::True : keyword::False; },
