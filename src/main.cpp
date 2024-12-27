@@ -50,22 +50,22 @@ int procCmdHelp() {
 
 int procCmdRun(const std::string& path) {
     auto       scanner = Scanner::from_source(utils::read_file_contents(path));
-    const auto tokens  = scanner.scan_tokens();
+    const auto scan_res  = scanner.scan_tokens();
     if(!scanner.success()) {
-        printer::print_err(tokens);
+        printer::print_res_err(scan_res);
         return 1;
     }
-    auto       parser       = Parser::from_tokens(std::get<0>(tokens));
-    const auto parse_result = parser.parse();
+    auto       parser       = Parser::from_tokens(std::get<0>(scan_res));
+    const auto parse_res = parser.parse();
     if(!parser.success()) {
-        printer::print_err(parse_result);
+        printer::print_res_err(parse_res);
         return 1;
     }
     try {
         auto interp = Interpreter();
-        interp.interpret(std::get<0>(parse_result));
+        interp.interpret(std::get<0>(parse_res));
     } catch(Error& error) {
-        printer::print(error);
+        printer::print_err(error);
     }
     return 0;
 }

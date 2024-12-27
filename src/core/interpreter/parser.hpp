@@ -1,11 +1,125 @@
 #pragma once
 
 #include "types/error.hpp"
-#include "types/result.hpp"
-#include "types/stmt.hpp"
 #include "types/token_t.hpp"
 
+#include <memory>
 #include <vector>
+
+struct ExprStmt;
+struct IfStmt;
+struct VarDeclStmt;
+struct FuncDeclStmt;
+struct BlockStmt;
+struct WhileStmt;
+struct BreakStmt;
+struct ContinueStmt;
+struct ReturnStmt;
+
+using Stmt = std::
+    variant<ExprStmt, IfStmt, VarDeclStmt, FuncDeclStmt, BlockStmt, WhileStmt, BreakStmt, ContinueStmt, ReturnStmt>;
+
+struct Binary;
+struct Unary;
+struct Grouping;
+struct Variable;
+struct Assign;
+struct Logical;
+struct Call;
+struct Lambda;
+using Literal = std::variant<std::nullptr_t, double, std::string, bool>;
+
+using Expr = std::variant<Binary, Grouping, Unary, Literal, Variable, Assign, Logical, Call, Lambda>;
+
+struct Token;
+
+using ScanResult  = std::tuple<std::vector<Token>, std::vector<Error>>;
+using ParseResult = std::tuple<std::vector<Stmt>, std::vector<Error>>;
+
+struct ExprStmt {
+    std::shared_ptr<Expr> expr;
+};
+
+struct IfStmt {
+    std::shared_ptr<Expr> condition;
+    std::shared_ptr<Stmt> then_branch;
+    std::shared_ptr<Stmt> else_branch;
+};
+
+struct VarDeclStmt {
+    std::string           name;
+    std::shared_ptr<Expr> initializer;
+};
+
+struct FuncDeclStmt {
+    std::string                        name;
+    std::vector<Token>                 params;
+    std::vector<std::shared_ptr<Stmt>> body;
+};
+
+struct BlockStmt {
+    std::vector<std::shared_ptr<Stmt>> statements;
+};
+
+struct WhileStmt {
+    std::shared_ptr<Expr> condition;
+    std::shared_ptr<Stmt> body;
+};
+
+struct BreakStmt {};
+struct ContinueStmt {};
+
+struct ReturnStmt {
+    std::shared_ptr<Expr> value;
+};
+
+struct Token {
+    TokenType   type;
+    std::string lexeme;
+    Literal     literal;
+    int         line;
+};
+
+struct Binary {
+    std::shared_ptr<Expr> left;
+    Token                 op;
+    std::shared_ptr<Expr> right;
+};
+
+struct Unary {
+    Token                 op;
+    std::shared_ptr<Expr> right;
+};
+
+struct Grouping {
+    std::shared_ptr<Expr> expr;
+};
+
+struct Variable {
+    Token name;
+};
+
+struct Assign {
+    Token                 name;
+    std::shared_ptr<Expr> value;
+};
+
+struct Logical {
+    std::shared_ptr<Expr> left;
+    Token                 op;
+    std::shared_ptr<Expr> right;
+};
+
+struct Call {
+    std::shared_ptr<Expr>              callee;
+    Token                              paren;
+    std::vector<std::shared_ptr<Expr>> args;
+};
+
+struct Lambda {
+    std::vector<Token>                 params;
+    std::vector<std::shared_ptr<Stmt>> body;
+};
 
 /**
  * Parses the list of tokens into an abstract syntax tree.
@@ -37,7 +151,7 @@ class Parser {
 
     Token current();
     Token previous();
-    Token consume(TokenType type, int err_code, std::string message);
+    Token consume(TokenType type, int err_code, const std::string& message);
     bool  is_end();
     void  synchronize();
 
@@ -69,12 +183,13 @@ class Parser {
     /* Collect arguments for the function call and create Call expression */
     Expr arguments(std::shared_ptr<Expr> callee);
     Expr primary();
+    Expr lambda();
 
 public:
     ~Parser() = default;
     static Parser from_tokens(const std::vector<Token>& tokens);
 
-    ParseResult   parse();
+    ParseResult parse();
 
     [[nodiscard]]
     bool success() const;

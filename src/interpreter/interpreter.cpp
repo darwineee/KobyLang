@@ -1,6 +1,5 @@
 #include "interpreter/interpreter.hpp"
 
-#include "const/characters.hpp"
 #include "types/error_code.hpp"
 #include "utils/errorx.hpp"
 #include "utils/templ.hpp"
@@ -171,6 +170,7 @@ Value Interpreter::evaluate(const std::shared_ptr<Expr>& expr) {
             [this](const Assign& assign) { return evaluateAssignExpr(assign); },
             [this](const Logical& logical) { return evaluateLogicalExpr(logical); },
             [this](const Call& call) { return evaluateCallExpr(call); },
+            [this](const Lambda& lambda) { return evaluateLambdaExpr(lambda); },
         },
         *expr);
 }
@@ -209,7 +209,7 @@ Value Interpreter::evaluateLogicalExpr(const Logical& logical) {
 Value Interpreter::evaluateCallExpr(const Call& call) {
     const Value callee = evaluate(call.callee);
     if(!std::holds_alternative<std::shared_ptr<Callable>>(callee))
-        panic(err::NOT_CALLABLE, "Can only call functions and classes.", call.paren.line);
+        panic(err::NOT_CALLABLE, "Can only call functions.", call.paren.line);
 
     auto& callable = std::get<std::shared_ptr<Callable>>(callee);
     if(call.args.size() != callable->arity())
@@ -223,6 +223,10 @@ Value Interpreter::evaluateCallExpr(const Call& call) {
         arguments.push_back(evaluate(arg));
 
     return callable->call(*this, arguments).value;
+}
+
+Value Interpreter::evaluateLambdaExpr(const Lambda& lambda) const {
+    return std::make_shared<LambdaFunc>(LambdaFunc{lambda.params, lambda.body, env});
 }
 
 Value Interpreter::evaluateUnaryExpr(const Unary& unary) {

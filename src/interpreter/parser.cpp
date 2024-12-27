@@ -6,6 +6,7 @@
 #include <utility>
 
 #include "const/characters.hpp"
+#include "print/printer.hpp"
 #include "types/error_code.hpp"
 #include "utils/errorx.hpp"
 #include "utils/validation.hpp"
@@ -66,7 +67,7 @@ Token Parser::previous() {
     return tokens[i - 1];
 }
 
-Token Parser::consume(const TokenType type, const int err_code, std::string message) {
+Token Parser::consume(const TokenType type, const int err_code, const std::string& message) {
     if(!match(type))
         panic(err_code, message, current().line);
     return previous();
@@ -149,12 +150,12 @@ Stmt Parser::func_declaration() {
     }
     if(utils::invalid_arity(params.size())) {
         const auto err = err::make(err::TOO_MANY_ARGUMENTS, "Can't have more than 255 parameters.", current().line);
-        errors.push_back(err);
+        printer::print_waring(err);
     }
     consume(TokenType::RIGHT_PAREN, err::FUNC_PARAMS_MISSING_PAREN, "Expect ')' after parameters.");
     consume(TokenType::LEFT_BRACE, err::BLOCK_NOT_CLOSED, "Expect '{' before function body.");
-    const auto body = std::get<BlockStmt>(block_stmt()).statements;
-    return FuncDeclStmt{name.lexeme, params, body};
+    auto body = std::get<BlockStmt>(block_stmt()).statements;
+    return FuncDeclStmt{name.lexeme, std::move(params), std::move(body)};
 }
 
 Stmt Parser::statement() {
@@ -415,10 +416,10 @@ Expr Parser::arguments(std::shared_ptr<Expr> callee) {
     }
     if(utils::invalid_arity(args.size())) {
         const auto err = err::make(err::TOO_MANY_ARGUMENTS, "Can't have more than 255 arguments.", current().line);
-        errors.push_back(err);
+        printer::print_waring(err);
     }
-    const auto paren = consume(TokenType::RIGHT_PAREN, err::CALL_NOT_CLOSED, "Expect ')' after arguments.");
-    return Call{std::move(callee), paren, args};
+    auto paren = consume(TokenType::RIGHT_PAREN, err::CALL_NOT_CLOSED, "Expect ')' after arguments.");
+    return Call{std::move(callee), std::move(paren), std::move(args)};
 }
 
 Expr Parser::primary() {
@@ -438,6 +439,9 @@ Expr Parser::primary() {
         return Grouping{std::make_shared<Expr>(expr)};
     }
 
+    if(match(TokenType::ARROW))
+        return lambda();
+
     if(match(TokenType::IDENTIFIER))
         return Variable{previous()};
 
@@ -445,4 +449,23 @@ Expr Parser::primary() {
     // That's mean if the parser can not detect any primary expression, it will be an error.
     // Should never reach here
     throw Error(err::UNKNOWN_PARSING_ERROR, "Parsing progress reached to an unknown state.");
+}
+
+Expr Parser::lambda() {
+    consume(TokenType::LEFT_PAREN, err::FUNC_PARAMS_MISSING_PAREN, "Expect '(' after 'lambda'.");
+    std::vector<Token> params;
+    if(!check(TokenType::RIGHT_PAREN)) {
+        do {
+            auto param = consume(TokenType::IDENTIFIER, err::FUNC_PARAM_MISSING_NAME, "Expect parameter name.");
+            params.push_back(param);
+        } while(match(TokenType::COMMA));
+    }
+    if(utils::invalid_arity(params.size())) {
+        const auto err = err::make(err::TOO_MANY_ARGUMENTS, "Can't have more than 255 parameters.", current().line);
+        printer::print_waring(err);
+    }
+    consume(TokenType::RIGHT_PAREN, err::FUNC_PARAMS_MISSING_PAREN, "Expect ')' after parameters.");
+    consume(TokenType::LEFT_BRACE, err::BLOCK_NOT_CLOSED, "Expect '{' before lambda body.");
+    auto body = std::get<BlockStmt>(block_stmt()).statements;
+    return Lambda{std::move(params), std::move(body)};
 }

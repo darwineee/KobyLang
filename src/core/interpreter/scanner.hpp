@@ -1,8 +1,8 @@
 #pragma once
 
 #include "const/characters.hpp"
+#include "parser.hpp"
 #include "types/error.hpp"
-#include "types/result.hpp"
 
 #include <string>
 #include <unordered_map>

@@ -10,6 +10,7 @@
 
 namespace utils {
 
+/* Used to validate scanner result */
 std::string to_string(const TokenType type) {
     switch(type) {
     case TokenType::LEFT_PAREN:
@@ -88,6 +89,8 @@ std::string to_string(const TokenType type) {
         return "NIL";
     case TokenType::END:
         return "END";
+    case TokenType::ARROW:
+        return "ARROW";
     default:
         return "?";
     }

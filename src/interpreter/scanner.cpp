@@ -105,8 +105,8 @@ void Scanner::handle_number() {
 void Scanner::handle_identifier() {
     while(utils::is_identifier_char(ahead()))
         scan_next();
-    //Allows "?" at the end of identifiers
-    if (ahead() == symbol::Question)
+    // Allows "?" at the end of identifiers
+    if(ahead() == symbol::Question)
         scan_next();
     if(const std::string str = source.substr(i, j - i + 1); keywords.contains(str))
         add_token(keywords[str]);
@@ -142,7 +142,10 @@ ScanResult Scanner::scan_tokens() {
             add_token(TokenType::PLUS);
             break;
         case symbol::Minus:
-            add_token(TokenType::MINUS);
+            if(ahead_match(op::Greater))
+                add_token(TokenType::ARROW);
+            else
+                add_token(TokenType::MINUS);
             break;
         case symbol::Comma:
             add_token(TokenType::COMMA);
@@ -196,10 +199,7 @@ ScanResult Scanner::scan_tokens() {
             else if(utils::is_identifier_start(c))
                 handle_identifier();
             else
-                collect_err(
-                    err::LEXICAL_ERROR,
-                    std::string("Unexpected character: ") + source[j],
-                    line);
+                collect_err(err::LEXICAL_ERROR, std::string("Unexpected character: ") + source[j], line);
         }
     }
     add_token(TokenType::END);

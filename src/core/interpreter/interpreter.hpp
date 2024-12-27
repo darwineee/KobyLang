@@ -1,6 +1,6 @@
 #pragma once
 
-#include "types/stmt.hpp"
+#include "parser.hpp"
 
 #include <functional>
 #include <string>
@@ -87,6 +87,9 @@ class Interpreter {
     Value evaluateLogicalExpr(const Logical& logical);
     Value evaluateCallExpr(const Call& call);
 
+    [[nodiscard]]
+    Value evaluateLambdaExpr(const Lambda& lambda) const;
+
     void prelude() const;
 
 public:
@@ -113,7 +116,7 @@ struct Callable {
     virtual ~Callable() = default;
 };
 
-struct Func final : Callable {
+struct Func : Callable {
     const std::vector<Token>                 params;
     const std::vector<std::shared_ptr<Stmt>> body;
     const std::shared_ptr<Environment>       closure;
@@ -140,8 +143,17 @@ struct Func final : Callable {
     }
 
     [[nodiscard]] std::string to_string() const override {
-        return "<fn " + name + ">";
+        return "<function " + name + ">";
     }
+};
+
+struct LambdaFunc final : Func {
+    const std::vector<Token>                 params;
+    const std::vector<std::shared_ptr<Stmt>> body;
+    const std::shared_ptr<Environment>       closure;
+
+    LambdaFunc(std::vector<Token> params, std::vector<std::shared_ptr<Stmt>> body, std::shared_ptr<Environment> closure)
+        : Func(std::move(params), std::move(body), std::move(closure), "lambda") {}
 };
 
 struct NativeFunc final : Callable {
@@ -161,6 +173,6 @@ struct NativeFunc final : Callable {
     }
 
     [[nodiscard]] std::string to_string() const override {
-        return "<native fn>";
+        return "<function native>";
     }
 };

@@ -22,6 +22,8 @@ enum class TokenType {
     LESS,
     LESS_EQUAL,
 
+    ARROW,
+
     IDENTIFIER,
     STRING,
     NUMBER,

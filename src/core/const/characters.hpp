@@ -31,6 +31,8 @@ constexpr std::string EqualEqual   = "==";
 constexpr std::string GreaterEqual = ">=";
 constexpr std::string LessEqual    = "<=";
 
+constexpr std::string Arrow = "->";
+
 } // namespace op
 
 namespace keyword {
