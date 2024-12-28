@@ -27,9 +27,10 @@ constexpr int FUNC_PARAMS_MISSING_PAREN = 115;
 constexpr int FUNC_PARAM_MISSING_NAME   = 116;
 
 // Interpreter errors: 201-300
-constexpr int OPERAND_INVALID = 201;
-constexpr int UNDEFINED_VAR   = 202;
-constexpr int ARGUMENT_COUNT_MISMATCH = 203;
-constexpr int NOT_CALLABLE = 204;
+constexpr int OPERAND_INVALID         = 201;
+constexpr int UNDEFINED_VAR           = 202;
+constexpr int DUPLICATE_VAR           = 203;
+constexpr int ARGUMENT_COUNT_MISMATCH = 204;
+constexpr int NOT_CALLABLE            = 205;
 
 } // namespace err

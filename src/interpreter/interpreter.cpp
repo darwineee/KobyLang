@@ -127,8 +127,7 @@ ExecSig Interpreter::runVarDeclStmt(const VarDeclStmt& stmt) {
 }
 
 ExecSig Interpreter::runFuncDeclStmt(const FuncDeclStmt& stmt) {
-    // TODO change to use closure env scope
-    const auto func = std::make_shared<Func>(stmt.params, stmt.body, env, stmt.name);
+    const auto func = std::make_shared<Func>(stmt.params, stmt.body, env, stmt.name.lexeme);
     env->define(stmt.name, Value(func));
     return ExecSig{};
 }

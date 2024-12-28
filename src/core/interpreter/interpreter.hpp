@@ -35,7 +35,8 @@ public:
     ~Environment() = default;
 
     bool  contains(const std::string& name) const;
-    void  define(const std::string& name, const Value& value = nullptr);
+    void  define(const std::string& name, const Value& value);
+    void  define(const Token& name, const Value& value);
     Value get(std::string name);
     void  assign(std::string name, const Value& value);
     void  remove(const std::string& name);
@@ -136,7 +137,7 @@ struct Func : Callable {
     ExecSig call(Interpreter& interpreter, const std::vector<Value>& arguments) const override {
         const auto function_env = std::make_shared<Environment>(closure);
         for(size_t i = 0; i < params.size(); ++i) {
-            function_env->define(params[i].lexeme, arguments[i]);
+            function_env->define(params[i], arguments[i]);
         }
         return interpreter.executeBlock(body, function_env);
     }

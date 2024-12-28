@@ -135,7 +135,7 @@ Stmt Parser::var_declaration() {
 
     consume(TokenType::SEMICOLON, err::SEMICOLON_MISSING, "Expect ';' after variable declaration.");
 
-    return VarDeclStmt{name.lexeme, std::make_shared<Expr>(initializer)};
+    return VarDeclStmt{name, std::make_shared<Expr>(initializer)};
 }
 
 Stmt Parser::func_declaration() {
@@ -155,7 +155,7 @@ Stmt Parser::func_declaration() {
     consume(TokenType::RIGHT_PAREN, err::FUNC_PARAMS_MISSING_PAREN, "Expect ')' after parameters.");
     consume(TokenType::LEFT_BRACE, err::BLOCK_NOT_CLOSED, "Expect '{' before function body.");
     auto body = std::get<BlockStmt>(block_stmt()).statements;
-    return FuncDeclStmt{name.lexeme, std::move(params), std::move(body)};
+    return FuncDeclStmt{name, std::move(params), std::move(body)};
 }
 
 Stmt Parser::statement() {

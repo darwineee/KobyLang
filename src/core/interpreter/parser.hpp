@@ -32,6 +32,12 @@ using Literal = std::variant<std::nullptr_t, double, std::string, bool>;
 using Expr = std::variant<Binary, Grouping, Unary, Literal, Variable, Assign, Logical, Call, Lambda>;
 
 struct Token;
+struct Token {
+    TokenType   type;
+    std::string lexeme;
+    Literal     literal;
+    int         line;
+};
 
 using ScanResult  = std::tuple<std::vector<Token>, std::vector<Error>>;
 using ParseResult = std::tuple<std::vector<Stmt>, std::vector<Error>>;
@@ -47,12 +53,12 @@ struct IfStmt {
 };
 
 struct VarDeclStmt {
-    std::string           name;
+    Token                 name;
     std::shared_ptr<Expr> initializer;
 };
 
 struct FuncDeclStmt {
-    std::string                        name;
+    Token                              name;
     std::vector<Token>                 params;
     std::vector<std::shared_ptr<Stmt>> body;
 };
@@ -71,13 +77,6 @@ struct ContinueStmt {};
 
 struct ReturnStmt {
     std::shared_ptr<Expr> value;
-};
-
-struct Token {
-    TokenType   type;
-    std::string lexeme;
-    Literal     literal;
-    int         line;
 };
 
 struct Binary {

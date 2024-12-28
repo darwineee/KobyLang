@@ -18,7 +18,7 @@ void print_waring(const Error& error) {
 }
 
 void print_err(const Error& error) {
-    std::cerr << error.what() << std::endl;
+    std::cerr << "[Error " << error.code << "]" << error.what() << std::endl;
 }
 
 void print_err(const std::vector<Error>& errors) {
