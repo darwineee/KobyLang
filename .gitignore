@@ -56,4 +56,4 @@ build
 vcpkg_installed
 
 .idea/
-test_local.kb
+example.kb

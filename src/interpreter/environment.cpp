@@ -4,6 +4,11 @@
 
 #include <format>
 
+bool Environment::contains(const std::string& name) const {
+    return variables.contains(name);
+}
+
+
 void Environment::define(const std::string& name, const Value& value) {
     variables[name] = value;
 }

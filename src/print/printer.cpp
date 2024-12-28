@@ -7,7 +7,10 @@
 namespace printer {
 
 void print(const Value& value) {
-    std::cout << utils::to_string(value) << std::endl;
+    if(const auto str = utils::to_string(value); str.empty())
+        std::cout << "\033[3m<empty>\033[0m" << std::endl;
+    else
+        std::cout << utils::to_string(value) << std::endl;
 }
 
 void print_waring(const Error& error) {

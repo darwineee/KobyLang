@@ -16,16 +16,37 @@ void Interpreter::panic(const int err_code, const std::string& message, const in
 
 void Interpreter::prelude() const {
     NativeFunc now_func{0, [](Interpreter&, const std::vector<Value>&) -> ExecSig {
-                       using namespace std::chrono;
-                       const auto now = duration_cast<seconds>(system_clock::now().time_since_epoch()).count();
-                       return ExecSig{.value = Value(static_cast<double>(now))};
-                   }};
+                            using namespace std::chrono;
+                            const auto now = duration_cast<seconds>(system_clock::now().time_since_epoch()).count();
+                            return ExecSig{.value = Value(static_cast<double>(now))};
+                        }};
     NativeFunc put_func{1, [](Interpreter&, const std::vector<Value>& args) -> ExecSig {
-                         std::cout << utils::to_string(args[0]) << std::endl;
-                         return ExecSig{};
-                     }};
+                            std::cout << utils::to_string(args[0]) << std::endl;
+                            return ExecSig{};
+                        }};
+    NativeFunc get_func{0, [](Interpreter&, const std::vector<Value>&) -> ExecSig {
+                            std::string input;
+                            std::getline(std::cin, input);
+                            if(input == "true") {
+                                return ExecSig{.value = Value(true)};
+                            }
+                            if(input == "false") {
+                                return ExecSig{.value = Value(false)};
+                            }
+                            try {
+                                size_t pos;
+                                double num = std::stod(input, &pos);
+                                if(pos == input.length()) {
+                                    return ExecSig{.value = Value(num)};
+                                }
+                            } catch(...) {
+                                // Not a number, fall through
+                            }
+                            return ExecSig{.value = Value(input)};
+                        }};
     global_env->define(prelude::NOW, Value(std::make_shared<NativeFunc>(now_func)));
     global_env->define(prelude::PUT, Value(std::make_shared<NativeFunc>(put_func)));
+    global_env->define(prelude::GET, Value(std::make_shared<NativeFunc>(get_func)));
 }
 
 void Interpreter::exclude_native_func(const std::vector<std::string>& list) const {
