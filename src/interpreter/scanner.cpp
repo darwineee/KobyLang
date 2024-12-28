@@ -18,7 +18,7 @@ bool Scanner::success() const {
 }
 
 void Scanner::collect_err(const int err_code, std::string message, const int line) {
-    errors.emplace_back(err_code, std::format("[line {}] Error: {}", line, message));
+    errors.emplace_back(err_code, std::format("[line {}] {}", line, message));
 }
 
 bool Scanner::is_eof(const int index) const {
