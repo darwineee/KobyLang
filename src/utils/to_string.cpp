@@ -35,6 +35,8 @@ std::string to_string(const TokenType type) {
         return "STAR";
     case TokenType::SLASH:
         return "SLASH";
+    case TokenType::PERCENT:
+        return "PERCENT_SIGN";
     case TokenType::BANG:
         return "BANG";
     case TokenType::BANG_EQUAL:

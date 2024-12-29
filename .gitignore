@@ -56,4 +56,3 @@ build
 vcpkg_installed
 
 .idea/
-example.kb

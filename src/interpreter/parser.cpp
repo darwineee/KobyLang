@@ -373,7 +373,7 @@ Expr Parser::term() {
 
 Expr Parser::factor() {
     Expr expr = unary();
-    while(matches({TokenType::SLASH, TokenType::STAR})) {
+    while(matches({TokenType::SLASH, TokenType::STAR, TokenType::PERCENT})) {
         const Token op    = previous();
         Expr        right = unary();
 

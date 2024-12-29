@@ -1,0 +1,99 @@
+// Basic variable declarations and types
+var number = 42;
+var string = "Hello, Koby!";
+var boolean = true;
+var empty = nil;
+
+// Type coercion and string concatenation
+put(string + " The answer is " + number);  // String concatenation
+put(1 + 2);        // 3 (number addition)
+put("1" + 2);      // "12" (string concatenation)
+put(true + false); // "truefalse"
+
+// Variable scope and shadowing
+var x = "global";
+{
+    var x = "local";
+    put(x);  // Prints "local"
+};
+put(x);      // Prints "global"
+
+// Functions with implicit return
+fun add(a, b) {
+    a + b;   // Last expression is returned
+};
+put(add(5, 3));  // Prints 8
+
+// Predicate function (with ?)
+fun isEven?(n) {
+    n % 2 == 0;
+};
+
+// Function with explicit return
+fun max(a, b) {
+    if (a > b) return a;
+    b;
+};
+
+// Lambda expressions
+var multiply = ->(x, y) { x * y; };
+put(multiply(6, 7));  // Prints 42
+
+// Higher-order functions
+fun twice(f, x) {
+    f(f(x));
+};
+put(twice(->(x) { x + 3; }, 1));  // Prints 7
+
+// Closures and variable capture
+fun makeCounter() {
+    var count = 0;
+    return ->() {
+        count = count + 1;
+        count;
+    };
+};
+
+var counter1 = makeCounter();
+var counter2 = makeCounter();
+put(counter1());  // 1
+put(counter1());  // 2
+put(counter2());  // 1 (separate count)
+
+// Control flow with short-circuit evaluation
+var a = nil;
+if (a != nil and a > 0) {
+    put("not reached");
+} else {
+    put("nil check short-circuited");
+};
+
+// Loops and control statements
+for (var i = 0; i < 5; i = i + 1) {
+    if (i == 2) continue;
+    if (i == 4) break;
+    put(i);
+};
+
+// While loop
+var n = 0;
+while (n < 3) {
+    put(n);
+    n = n + 1;
+};
+
+// Native functions
+put("Enter your name:");
+var name = get();
+put("Hello, " + name + "!");
+put("Current time: " + now());
+
+// Complex closure example demonstrating variable capture
+fun makeAdder(x) {
+    return ->(y) { x + y; };
+};
+
+var add5 = makeAdder(5);
+var add10 = makeAdder(10);
+put(add5(3));   // Prints 8
+put(add10(3));  // Prints 13

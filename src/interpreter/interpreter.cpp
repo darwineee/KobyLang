@@ -9,6 +9,7 @@
 #include <chrono>
 #include <iostream>
 #include <memory>
+#include <cmath>
 
 void Interpreter::panic(const int err_code, const std::string& message, const int line) {
     throw err::make(err_code, message, line);
@@ -289,6 +290,10 @@ Value Interpreter::evaluateBinaryExpr(const Binary& binary) {
     case TokenType::STAR:
         ensure_num_operands(binary.op, {left, right});
         return std::get<double>(left) * std::get<double>(right);
+
+    case TokenType::PERCENT:
+        ensure_num_operands(binary.op, {left, right});
+        return std::fmod(std::get<double>(left), std::get<double>(right));
 
     case TokenType::PLUS:
         if(is_num_operand(left) && is_num_operand(right))

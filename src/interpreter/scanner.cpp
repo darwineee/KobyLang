@@ -162,6 +162,9 @@ ScanResult Scanner::scan_tokens() {
         case symbol::Slash:
             handle_slash();
             break;
+        case symbol::Percent:
+            add_token(TokenType::PERCENT);
+            break;
 
         // Case operators
         case op::Bang:

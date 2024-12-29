@@ -12,6 +12,7 @@ enum class TokenType {
     SEMICOLON,
     STAR,
     SLASH,
+    PERCENT,
 
     BANG,
     BANG_EQUAL,

@@ -14,8 +14,8 @@ constexpr char Dot        = '.';
 constexpr char Semicolon  = ';';
 constexpr char Star       = '*';
 constexpr char Slash      = '/';
-
-constexpr char Question    = '?';
+constexpr char Percent    = '%';
+constexpr char Question   = '?';
 
 } // namespace symbol
 
