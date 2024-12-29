@@ -5,6 +5,9 @@
 
 #include <memory>
 #include <vector>
+#include <variant>
+#include <tuple>
+#include <string>
 
 struct ExprStmt;
 struct IfStmt;

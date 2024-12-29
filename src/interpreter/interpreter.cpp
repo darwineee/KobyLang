@@ -10,6 +10,7 @@
 #include <iostream>
 #include <memory>
 #include <cmath>
+#include <format>
 
 void Interpreter::panic(const int err_code, const std::string& message, const int line) {
     throw err::make(err_code, message, line);
@@ -58,15 +59,15 @@ void Interpreter::exclude_native_func(const std::vector<std::string>& list) cons
 bool Interpreter::is_truthy(const Value& value) {
     if(std::holds_alternative<bool>(value))
         return std::get<bool>(value);
-    if(std::holds_alternative<nullptr_t>(value))
+    if(std::holds_alternative<std::nullptr_t>(value))
         return false;
     return true;
 }
 
 bool Interpreter::is_equal(const Value& left, const Value& right) {
-    if(std::holds_alternative<nullptr_t>(left) && std::holds_alternative<nullptr_t>(right))
+    if(std::holds_alternative<std::nullptr_t>(left) && std::holds_alternative<std::nullptr_t>(right))
         return true;
-    if(std::holds_alternative<nullptr_t>(left) || std::holds_alternative<nullptr_t>(right))
+    if(std::holds_alternative<std::nullptr_t>(left) || std::holds_alternative<std::nullptr_t>(right))
         return false;
     return left == right;
 }
